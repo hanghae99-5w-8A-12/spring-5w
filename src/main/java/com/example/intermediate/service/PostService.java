@@ -50,7 +50,11 @@ public class PostService {
         }
 
         //S3에 저장하기
-        String s3image = s3Uploader.upload(multipartFile, "static");
+        String s3image = null;
+
+        if (!multipartFile.getOriginalFilename().isEmpty()){
+            s3image = s3Uploader.upload(multipartFile, "static");
+        }
 
 
         //로그인 검사를 끝내고 게시글 작성
@@ -124,6 +128,7 @@ public class PostService {
                         .id(post.getId())
                         .title(post.getTitle())
                         .content(post.getContent())
+                        .imageUrl(post.getImageUrl())
                         .commentResponseDtoList(commentResponseDtoList)
                         .author(post.getMember().getNickname())
                         .postHeartCount(postHeartCount)
