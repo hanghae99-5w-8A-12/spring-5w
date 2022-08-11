@@ -30,10 +30,9 @@ public class PostService {
 
     private final TokenProvider tokenProvider;
 
-    private final S3Uploader s3Uploader;
 
     @Transactional
-    public ResponseDto<?> createPost(PostRequestDto requestDto, HttpServletRequest request, MultipartFile multipartFile) throws IOException {
+    public ResponseDto<?> createPost(PostRequestDto requestDto, HttpServletRequest request) {
         if (null == request.getHeader("Refresh-Token")) {
             return ResponseDto.fail("MEMBER_NOT_FOUND",
                     "로그인이 필요합니다.");
@@ -49,19 +48,12 @@ public class PostService {
             return ResponseDto.fail("INVALID_TOKEN", "Token이 유효하지 않습니다.");
         }
 
-        //S3에 저장하기
-        String s3image = null;
-
-        if (!multipartFile.getOriginalFilename().isEmpty()){
-            s3image = s3Uploader.upload(multipartFile, "static");
-        }
-
 
         //로그인 검사를 끝내고 게시글 작성
         Post post = Post.builder()
                 .title(requestDto.getTitle())
                 .content(requestDto.getContent())
-                .imageUrl(s3image)
+                .imageUrl(requestDto.getImageUrl())
                 .member(member)
                 .build();
         postRepository.save(post); //DB에 저자
@@ -70,7 +62,7 @@ public class PostService {
                         .id(post.getId())
                         .title(post.getTitle())
                         .content(post.getContent())
-                        .imageUrl(s3image)
+                        .imageUrl(post.getImageUrl())
                         .author(post.getMember().getNickname())
                         .createdAt(post.getCreatedAt())
                         .modifiedAt(post.getModifiedAt())

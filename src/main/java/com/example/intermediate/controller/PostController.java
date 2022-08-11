@@ -18,9 +18,9 @@ public class PostController {
 
     //게시글작성
     @RequestMapping(value = "/api/auth/post", method = RequestMethod.POST)
-    public ResponseDto<?> createPost(@RequestPart("images") MultipartFile multipartFile, @RequestPart("postRequest") PostRequestDto requestDto,
-                                     HttpServletRequest request) throws IOException {
-        return postService.createPost(requestDto, request, multipartFile);
+    public ResponseDto<?> createPost(@RequestBody PostRequestDto requestDto,
+                                     HttpServletRequest request) {
+        return postService.createPost(requestDto, request);
     }
 
     //게시글 아이디로 조회
