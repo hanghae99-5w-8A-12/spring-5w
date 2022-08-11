@@ -17,7 +17,7 @@ permissions:
   contents: read
 
 env:
-  RESOURCE_PATH: ./src/main/resources/application.properties
+  RESOURCE_PATH: ./src/main/resources/application.yaml
   PROJECT_NAME: spring-5w
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -39,11 +39,14 @@ jobs:
           distribution: 'temurin'
 
       - name: Generate Environment Variables File for Properties
-        run: |
-          echo "cloud.aws.credentials.access-key=$AWS_ACCESS_KEY_ID" >> $RESOURCE_PATH
-          echo "cloud.aws.credentials.secret-key=$AWS_SECRET_ACCESS_KEY" >> $RESOURCE_PATH
-          echo "jwt.secret=$JWT_SECRET_KEY" >> $RESOURCE_PATH
-          echo "cloud.aws.s3.bucket=$S3_BUCKET_NAME" >> $RESOURCE_PATH
+        uses: microsoft/variable-substitution@v1
+        with:
+          files: ${{ env.RESOURCE_PATH }}
+        env:
+          cloud.aws.credentials.access-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          cloud.aws.credentials.secret-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          jwt.secret: ${{ secrets.JWT_SECRET_KEY }}
+          cloud.aws.s3.bucket: ${{ secrets.S3_BUCKET_NAME }}
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
